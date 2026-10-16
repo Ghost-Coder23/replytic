@@ -1,0 +1,116 @@
+{% extends "base/app.html" %}
+{% block title %}Automations{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <h1>Automations</h1>
+    <p class="lede">Rules that help Replytic respond to common customer questions.</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'automations:create' %}"><i class="bi bi-plus-lg me-2"></i>Create Automation</a>
+</header>
+
+<h2 class="h5 mb-3">How Replytic behaves on each Page</h2>
+{% if pages %}
+<div class="d-grid gap-3 mb-5">
+  {% for page in pages %}
+  <form method="post" action="{% url 'automations:page_mode' page.pk %}" class="rp-card mode-card" data-mode-form>
+    {% csrf_token %}
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="avatar avatar-org"><i class="bi bi-flag"></i></span>
+      <div class="flex-grow-1 lh-sm"><div class="fw-semibold">{{ page.name }}</div><small class="text-muted">{{ page.get_automation_mode_display }} now</small></div>
+      <button class="btn btn-primary btn-sm" type="submit">Save</button>
+    </div>
+    <div class="mode-options" role="radiogroup" aria-label="Automation mode for {{ page.name }}">
+      {% for value, label in mode_choices %}
+      <label class="mode-option{% if value == 'AUTO' %} is-auto{% endif %}">
+        <input type="radio" name="mode" value="{{ value }}" {% if page.automation_mode == value %}checked{% endif %}>
+        <span class="t">{{ label }}</span>
+        <span class="d">{% if value == 'OFF' %}Comments are collected. Replytic never suggests or posts.{% elif value == 'DRAFT' %}Replytic writes the reply. You approve it before it's posted. Recommended.{% else %}Replytic posts matching replies publicly, straight away.{% endif %}</span>
+      </label>
+      {% endfor %}
+    </div>
+    <div class="mt-3 d-none" data-auto-extra>
+      <div class="flash flash-warning mb-2"><i class="bi bi-exclamation-triangle-fill"></i><div>Automatic replies are <strong>public</strong> and can't be unsent by Replytic. Keep your rules specific, and test them below first.</div></div>
+      <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="confirm_auto" id="confirm-{{ page.pk }}"><label class="form-check-label" for="confirm-{{ page.pk }}">I understand Replytic will reply publicly without approval.</label></div>
+      <label class="form-label small" for="limit-{{ page.pk }}">Most automatic replies per hour</label>
+      <input type="number" class="form-control" style="max-width:140px" id="limit-{{ page.pk }}" name="max_auto_replies_per_hour" min="1" max="200" value="{{ page.max_auto_replies_per_hour }}">
+    </div>
+  </form>
+  {% endfor %}
+</div>
+{% else %}
+<div class="readonly-note mb-5"><i class="bi bi-info-circle"></i><div>No Page is connected yet, so rules have nothing to act on. <a href="{% url 'facebook:index' %}">Connect a Facebook Page</a> to get started. You can write rules now.</div></div>
+{% endif %}
+
+<div class="d-flex align-items-center justify-content-between mb-3"><h2 class="h5 mb-0">Rules</h2>{% if rules %}<small class="text-muted">Checked top to bottom. The first match wins.</small>{% endif %}</div>
+{% if rules %}
+<section class="rp-card overflow-hidden mb-5">
+  {% for rule in rules %}
+  <div class="rule-row{% if not rule.is_active %} is-paused{% endif %}">
+    <div class="d-flex align-items-start gap-3 flex-wrap">
+      <div class="flex-grow-1">
+        <div class="fw-semibold">{{ rule.name }}
+          <span class="chip chip-muted ms-1">{{ rule.get_action_display }}</span>
+          {% if not rule.is_active %}<span class="chip chip-soon ms-1">Paused</span>{% endif %}
+        </div>
+        <small class="text-muted">{% if rule.page %}{{ rule.page.name }}{% else %}All Pages{% endif %} &middot; priority {{ rule.priority }} &middot; matched {{ rule.match_count }} time{{ rule.match_count|pluralize }}</small>
+      </div>
+      <div class="d-flex gap-1">
+        <form method="post" action="{% url 'automations:toggle' rule.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-ink" type="submit">{% if rule.is_active %}Pause{% else %}Resume{% endif %}</button></form>
+        <a class="btn btn-sm btn-outline-ink" href="{% url 'automations:edit' rule.pk %}">Edit</a>
+        <button class="btn btn-sm btn-danger-soft" type="button" data-bs-toggle="modal" data-bs-target="#deleteRule" data-member-modal="#deleteRule" data-action="{% url 'automations:delete' rule.pk %}" data-name="{{ rule.name }}">Delete</button>
+      </div>
+    </div>
+    <div>{% for kw in rule.keyword_list %}<span class="kw">{{ kw }}</span>{% endfor %}</div>
+    {% if rule.reply_template %}<div class="cbubble cbubble-out ms-0" style="max-width:560px;font-size:.9rem">{{ rule.reply_template }}</div>{% endif %}
+  </div>
+  {% endfor %}
+</section>
+{% else %}
+{% url 'automations:create' as create_url %}
+<div class="mb-5">{% include "components/empty_state.html" with icon="bi-lightning-charge" title="No automations yet" description="Create rules that help Replytic respond to common customer questions." features="Answer price, stock and delivery questions|Flag complaints for a person|Ignore spam automatically" button_label="Create Automation" button_url=create_url %}</div>
+{% endif %}
+
+<section class="rp-card rp-card-pad">
+  <h2 class="rp-card-title mb-1">Test your rules</h2>
+  <p class="text-muted">Type a sample comment to see which rule would answer it. Nothing is saved or posted.</p>
+  <form method="post" action="{% url 'automations:test' %}">
+    {% csrf_token %}
+    <div class="row g-3">
+      <div class="col-md-8">{% include "components/form_field.html" with field=test_form.message %}</div>
+      <div class="col-md-4">{% include "components/form_field.html" with field=test_form.author_name %}</div>
+    </div>
+    <button class="btn btn-ink" type="submit"><i class="bi bi-play-fill me-1"></i>Test</button>
+  </form>
+  {% if test_result %}
+  <div class="mt-4">
+    <div class="cbubble cbubble-in mb-3">{{ test_result.message }}</div>
+    {% if test_result.decision %}
+      <div class="decision-note mb-2"><i class="bi bi-check-circle-fill"></i><span>Matches rule <strong>“{{ test_result.decision.rule.name }}”</strong> &rarr; {{ test_result.decision.rule.get_action_display|lower }}.</span></div>
+      {% if test_result.decision.action == 'REPLY' %}<div class="cbubble cbubble-out">{{ test_result.decision.text }}</div>
+        {% if test_result.decision.missing %}<div class="error-strip mt-2"><i class="bi bi-exclamation-triangle-fill"></i><span>Missing {% for m in test_result.decision.missing %}{{ m }}{% if not forloop.last %}, {% endif %}{% endfor %} in your business profile. This reply would wait for a person even in automatic mode. <a href="{% url 'organizations:settings' %}?tab=business">Fill it in</a>.</span></div>{% endif %}
+      {% endif %}
+    {% else %}
+      <div class="decision-note"><i class="bi bi-person-raised-hand"></i><span>No rule matches. A person would see this in the Comments inbox.</span></div>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+
+<div class="modal fade" id="deleteRule" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><form class="modal-content" method="post" action="">{% csrf_token %}
+    <div class="modal-header"><h2 class="modal-title h5">Delete rule?</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">“<strong data-fill="name"></strong>” will stop matching comments. Comments already handled aren't affected.</div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-ink" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger" type="submit">Delete rule</button></div>
+  </form></div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  document.querySelectorAll("[data-mode-form]").forEach(function (form) {
+    var extra = form.querySelector("[data-auto-extra]");
+    function sync() { var auto = form.querySelector("input[name=mode][value=AUTO]"); extra.classList.toggle("d-none", !(auto && auto.checked)); }
+    form.addEventListener("change", sync); sync();
+  });
+</script>
+{% endblock %}

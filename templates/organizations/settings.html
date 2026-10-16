@@ -1,0 +1,96 @@
+{% extends "base/app.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Settings" description="Manage your business, your account and how Replytic connects to the world." %}
+
+<div class="settings-layout">
+  <nav class="settings-nav" aria-label="Settings sections">
+    {% for tab in tabs %}
+    <a href="?tab={{ tab.key }}" class="{% if tab.key == active_tab %}active{% endif %}"{% if tab.key == active_tab %} aria-current="page"{% endif %}><i class="bi {{ tab.icon }}"></i>{{ tab.label }}</a>
+    {% endfor %}
+  </nav>
+
+  <div>
+  {% if active_tab == "business" %}
+    <form method="post" enctype="multipart/form-data" novalidate data-loading-form class="rp-card rp-card-pad">
+      {% csrf_token %}
+      <input type="hidden" name="form_name" value="business">
+      <h2 class="rp-card-title mb-1">Business profile</h2>
+      <p class="text-muted mb-4">This is how your business appears in Replytic and, later, in customer replies.</p>
+
+      <div class="mb-4">
+        <label class="form-label" for="{{ business_form.logo.id_for_label }}">Logo</label>
+        <div class="logo-uploader">
+          <span class="avatar avatar-org avatar-xl" data-logo-preview>{% if current_organization.logo %}<img src="{{ current_organization.logo.url }}" alt="Current logo">{% else %}{{ current_organization.initials }}{% endif %}</span>
+          <div>{{ business_form.logo }}<div class="field-help">PNG, JPG, WebP or GIF, up to 2 MB.</div>
+            {% for error in business_form.logo.errors %}<div class="field-error"><i class="bi bi-exclamation-circle"></i><span>{{ error }}</span></div>{% endfor %}</div>
+        </div>
+      </div>
+
+      <div class="row gx-3">
+        <div class="col-md-12">{% include "components/form_field.html" with field=business_form.name %}</div>
+        <div class="col-md-12">{% include "components/form_field.html" with field=business_form.description %}</div>
+        <div class="col-md-6">{% include "components/form_field.html" with field=business_form.phone %}</div>
+        <div class="col-md-6">{% include "components/form_field.html" with field=business_form.whatsapp_number %}</div>
+        <div class="col-md-6">{% include "components/form_field.html" with field=business_form.email %}</div>
+        <div class="col-md-6">{% include "components/form_field.html" with field=business_form.timezone %}</div>
+        <div class="col-md-12">{% include "components/form_field.html" with field=business_form.address %}</div>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn btn-primary">Save changes</button></div>
+    </form>
+
+  {% elif active_tab == "account" %}
+    <form method="post" novalidate data-loading-form class="rp-card rp-card-pad">
+      {% csrf_token %}
+      <input type="hidden" name="form_name" value="account">
+      <h2 class="rp-card-title mb-1">Account</h2>
+      <p class="text-muted mb-4">Your personal details. These apply to you in every business you belong to.</p>
+      <div class="row gx-3">
+        <div class="col-md-6">{% include "components/form_field.html" with field=account_form.first_name %}</div>
+        <div class="col-md-6">{% include "components/form_field.html" with field=account_form.last_name %}</div>
+        <div class="col-12">{% include "components/form_field.html" with field=account_form.email %}</div>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn btn-primary">Save changes</button></div>
+    </form>
+
+  {% elif active_tab == "security" %}
+    <section class="rp-card rp-card-pad">
+      <h2 class="rp-card-title mb-1">Security</h2>
+      <p class="text-muted mb-4">Keep your account safe with a strong, unique password.</p>
+      <div class="integration-row">
+        <span class="int-icon"><i class="bi bi-key"></i></span>
+        <div class="flex-grow-1"><div class="fw-semibold">Password</div><div class="text-muted small">Change the password you use to sign in.</div></div>
+        <a class="btn btn-outline-ink" href="{% url 'accounts:password_change' %}">Change password</a>
+      </div>
+    </section>
+
+  {% elif active_tab == "team" %}
+    <section class="rp-card rp-card-pad">
+      <h2 class="rp-card-title mb-1">Team</h2>
+      <p class="text-muted mb-4">{{ member_count }} member{{ member_count|pluralize }} in {{ current_organization.name }}.</p>
+      <a class="btn btn-primary" href="{% url 'organizations:team' %}"><i class="bi bi-people me-2"></i>Open team</a>
+    </section>
+
+  {% elif active_tab == "integrations" %}
+    <section class="rp-card rp-card-pad">
+      <h2 class="rp-card-title mb-1">Integrations</h2>
+      <p class="text-muted mb-3">Connect the channels and tools Replytic works with.</p>
+      {% for icon, name, text, url_name in integrations %}
+      <div class="integration-row">
+        <span class="int-icon"><i class="bi {{ icon }}"></i></span>
+        <div class="flex-grow-1"><div class="fw-semibold">{{ name }}</div><div class="text-muted small">{{ text }}</div></div>
+        {% if url_name %}{% if can.manage_integrations %}<a class="btn btn-sm btn-outline-ink" href="{% url url_name %}">Manage</a>{% endif %}{% else %}<span class="chip chip-soon">Coming soon</span>{% endif %}
+      </div>
+      {% endfor %}
+    </section>
+
+  {% elif active_tab == "billing" %}
+    <section class="rp-card rp-card-pad">
+      <h2 class="rp-card-title mb-1">Billing</h2>
+      <p class="text-muted mb-4">You're on the Free / Development plan. Paid plans and billing are coming soon.</p>
+      <a class="btn btn-outline-ink" href="{% url 'dashboard:billing' %}">View subscription</a>
+    </section>
+  {% endif %}
+  </div>
+</div>
+{% endblock %}

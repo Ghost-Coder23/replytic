@@ -1,0 +1,65 @@
+{% load static %}
+<header class="app-topbar">
+  <button class="topbar-icon-btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar" aria-label="Open navigation">
+    <i class="bi bi-list" style="font-size:1.5rem"></i>
+  </button>
+  <div class="d-lg-none">{% url 'dashboard:index' as dashboard_url %}{% include "components/logo.html" with size=28 href=dashboard_url %}</div>
+
+  {% if current_organization %}
+  <div class="dropdown ms-lg-0">
+    <button class="org-switch" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Switch business. Current: {{ current_organization.name }}">
+      <span class="avatar avatar-org avatar-sm">{% if current_organization.logo %}<img src="{{ current_organization.logo.url }}" alt="">{% else %}{{ current_organization.initials }}{% endif %}</span>
+      <span class="label d-none d-sm-block"><small>Business</small>{{ current_organization.name }}</span>
+      <i class="bi bi-chevron-expand rp-faint d-none d-sm-inline"></i>
+    </button>
+    <div class="dropdown-menu" style="min-width:280px">
+      <div class="dropdown-header">Your businesses</div>
+      {% for m in user_memberships %}
+      <form method="post" action="{% url 'organizations:switch' %}">
+        {% csrf_token %}
+        <input type="hidden" name="organization_id" value="{{ m.organization_id }}">
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <button type="submit" class="dropdown-item menu-org-row{% if m.organization_id == current_organization.id %} active{% endif %}">
+          <span class="avatar avatar-org avatar-sm">{% if m.organization.logo %}<img src="{{ m.organization.logo.url }}" alt="">{% else %}{{ m.organization.initials }}{% endif %}</span>
+          <span><span class="fw-semibold d-block lh-sm">{{ m.organization.name }}</span><small class="text-muted">{{ m.get_role_display }}</small></span>
+          {% if m.organization_id == current_organization.id %}<i class="bi bi-check2 check"></i>{% endif %}
+        </button>
+      </form>
+      {% endfor %}
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item" href="{% url 'organizations:create' %}"><i class="bi bi-plus-circle"></i>Add another business</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="ms-auto d-flex align-items-center gap-1">
+    <div class="dropdown">
+      <button class="topbar-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications"><i class="bi bi-bell"></i></button>
+      <div class="dropdown-menu dropdown-menu-end p-3 text-center" style="width:290px">
+        <i class="bi bi-bell-slash rp-faint" style="font-size:1.6rem"></i>
+        <div class="fw-semibold mt-1">You're all caught up</div>
+        <small class="text-muted">Notifications will show up here once your channels are connected.</small>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="user-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account menu">
+        <span class="avatar">{{ request.user.first_name|slice:":1"|default:request.user.email|slice:":1"|upper }}</span>
+        <i class="bi bi-chevron-down rp-faint d-none d-md-inline" style="font-size:.75rem"></i>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end" style="min-width:250px">
+        <div class="px-2 py-2">
+          <div class="fw-semibold">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <small class="text-muted">{{ request.user.email }}</small>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="{% url 'organizations:settings' %}?tab=account"><i class="bi bi-person"></i>Account</a>
+        <a class="dropdown-item" href="{% url 'accounts:password_change' %}"><i class="bi bi-shield-lock"></i>Change password</a>
+        {% if can.manage_business_profile %}<a class="dropdown-item" href="{% url 'organizations:settings' %}?tab=business"><i class="bi bi-shop"></i>Business profile</a>{% endif %}
+        <div class="dropdown-divider"></div>
+        <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+          <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right"></i>Sign out</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</header>

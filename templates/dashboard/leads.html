@@ -1,0 +1,14 @@
+{% extends "base/app.html" %}
+{% block title %}Leads{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Leads" soon=True description="Follow potential customers from first question to closed sale." %}
+<div class="filter-pills mb-3" role="group" aria-label="Lead status filters (available soon)">
+  <span class="filter-pill active" aria-current="true">All<span class="count">0</span></span>
+  <span class="filter-pill" aria-disabled="true">New<span class="count">0</span></span>
+  <span class="filter-pill" aria-disabled="true">Contacted<span class="count">0</span></span>
+  <span class="filter-pill" aria-disabled="true">Qualified<span class="count">0</span></span>
+  <span class="filter-pill" aria-disabled="true">Won<span class="count">0</span></span>
+  <span class="filter-pill" aria-disabled="true">Lost<span class="count">0</span></span>
+</div>
+{% include "components/empty_state.html" with icon="bi-person-check" title="No leads yet" description="Potential customers identified from your social conversations will appear here." features="See who asked about prices or stock|Track each lead from new to won|Hand serious buyers to your team" %}
+{% endblock %}

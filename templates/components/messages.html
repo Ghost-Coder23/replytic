@@ -1,0 +1,11 @@
+{% if messages %}
+<div class="flash-stack" role="status" aria-live="polite">
+  {% for message in messages %}
+  <div class="flash flash-{{ message.tags }}"{% if message.tags != 'danger' %} data-autodismiss{% endif %}>
+    <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% elif message.tags == 'danger' %}bi-exclamation-octagon-fill{% elif message.tags == 'warning' %}bi-exclamation-triangle-fill{% else %}bi-info-circle-fill{% endif %}" aria-hidden="true"></i>
+    <div>{{ message }}</div>
+    <button type="button" class="btn-close" aria-label="Dismiss"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

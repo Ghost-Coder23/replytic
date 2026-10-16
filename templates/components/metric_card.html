@@ -1,0 +1,8 @@
+<div class="rp-card metric tone-{{ tone|default:'teal' }}">
+  <div class="metric-top">
+    <span class="metric-label">{{ label }}</span>
+    <span class="metric-icon" aria-hidden="true"><i class="bi {{ icon }}"></i></span>
+  </div>
+  <div class="metric-value">{{ value }}</div>
+  {% if note %}<div class="metric-note">{{ note }}</div>{% endif %}
+</div>

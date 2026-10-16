@@ -1,0 +1,22 @@
+{% load rp_extras %}
+<div class="rp-card empty-state">
+  <div class="empty-art">
+    <span class="art-icon" aria-hidden="true"><i class="bi {{ icon }}"></i></span>
+    {% include "components/thread.html" %}
+  </div>
+  <div class="empty-copy">
+    <h2>{{ title }}</h2>
+    <p>{{ description }}</p>
+    {% if features %}
+    <ul class="feature-list">
+      {% for feature in features|split:"|" %}<li><i class="bi bi-check2-circle" aria-hidden="true"></i><span>{{ feature }}</span></li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% if button_label and button_url %}
+    <a class="btn btn-primary" href="{{ button_url }}"><i class="bi {{ button_icon|default:'bi-plus-lg' }} me-2" aria-hidden="true"></i>{{ button_label }}</a>
+    {% elif button_label %}
+    <button type="button" class="btn btn-soon" disabled aria-disabled="true"><i class="bi {{ button_icon|default:'bi-hourglass-split' }} me-2" aria-hidden="true"></i>{{ button_label }}</button>
+    <span class="chip chip-soon ms-2">Coming soon</span>
+    {% endif %}
+  </div>
+</div>

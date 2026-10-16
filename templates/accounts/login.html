@@ -1,0 +1,29 @@
+{% extends "base/auth.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<h1>Welcome back</h1>
+<p class="sub">Sign in to see what your customers are saying.</p>
+
+<form method="post" novalidate data-loading-form>
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next }}">
+  {% if form.non_field_errors %}
+  <div class="flash flash-danger mb-3"><i class="bi bi-exclamation-octagon-fill"></i><div>{{ form.non_field_errors.0 }}</div></div>
+  {% endif %}
+  {% include "components/form_field.html" with field=form.username %}
+  <div class="mb-3">
+    <div class="d-flex justify-content-between align-items-baseline">
+      <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+      <a class="small fw-semibold" href="{% url 'accounts:password_reset' %}">Forgot password?</a>
+    </div>
+    <div class="input-group">
+      {{ form.password }}
+      <button class="btn btn-reveal" type="button" data-toggle-password="{{ form.password.id_for_label }}" aria-label="Show password"><i class="bi bi-eye"></i></button>
+    </div>
+    {% for error in form.password.errors %}<div class="field-error"><i class="bi bi-exclamation-circle"></i><span>{{ error }}</span></div>{% endfor %}
+  </div>
+  {% include "components/form_field.html" with field=form.remember_me %}
+  <button type="submit" class="btn btn-primary btn-lg w-100">Sign in</button>
+</form>
+<p class="auth-switch">New to Replytic? <a href="{% url 'accounts:register' %}">Create your account</a></p>
+{% endblock %}

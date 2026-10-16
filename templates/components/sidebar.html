@@ -1,0 +1,31 @@
+<aside class="offcanvas-lg offcanvas-start app-sidebar" tabindex="-1" id="appSidebar" aria-label="Main navigation">
+  <div class="sidebar-inner">
+    <div class="sidebar-brand">
+      {% url 'dashboard:index' as dashboard_url %}{% include "components/logo.html" with dark=True href=dashboard_url %}
+      <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#appSidebar" aria-label="Close"></button>
+    </div>
+    <nav class="sidebar-nav">
+      {% for section in nav_sections %}
+      <div class="nav-group">
+        <div class="nav-group-title">{{ section.title }}</div>
+        {% for item in section.items %}
+        <a href="{% url item.url_name %}" class="nav-link-rp{% if item.active %} active{% endif %}"{% if item.active %} aria-current="page"{% endif %}>
+          <i class="bi {{ item.icon }}" aria-hidden="true"></i>
+          <span>{{ item.label }}</span>
+          {% if item.soon %}<span class="nav-soon">Soon</span>{% endif %}
+        </a>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </nav>
+    {% if current_organization %}
+    <div class="sidebar-org">
+      <span class="avatar avatar-org">{% if current_organization.logo %}<img src="{{ current_organization.logo.url }}" alt="">{% else %}{{ current_organization.initials }}{% endif %}</span>
+      <div class="min-w-0">
+        <div class="name">{{ current_organization.name }}</div>
+        <div class="role">{{ current_membership.get_role_display }}</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</aside>

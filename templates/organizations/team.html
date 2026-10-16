@@ -1,0 +1,90 @@
+{% extends "base/app.html" %}
+{% block title %}Team{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <h1>Team</h1>
+    <p class="lede">People who can work in {{ current_organization.name }}.</p>
+  </div>
+  {% if can.manage_team %}
+  <div class="d-flex align-items-center gap-2">
+    <button type="button" class="btn btn-soon" disabled aria-disabled="true"><i class="bi bi-person-plus me-2"></i>Invite Member</button>
+    <span class="chip chip-soon">Invites coming soon</span>
+  </div>
+  {% endif %}
+</header>
+
+<section class="rp-card overflow-hidden">
+  <div class="table-responsive">
+    <table class="table rp-table align-middle">
+      <thead>
+        <tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Joined</th>{% if can.manage_team %}<th scope="col" class="text-end">Manage</th>{% endif %}</tr>
+      </thead>
+      <tbody>
+        {% for member in members %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-3">
+              <span class="avatar">{{ member.user.first_name|slice:":1"|default:member.user.email|slice:":1"|upper }}</span>
+              <div class="lh-sm"><div class="fw-semibold">{{ member.user.get_full_name|default:member.user.username }}{% if member.is_you %} <span class="chip chip-muted ms-1">You</span>{% endif %}</div></div>
+            </div>
+          </td>
+          <td class="text-muted">{{ member.user.email }}</td>
+          <td><span class="chip chip-{{ member.role|lower }}">{{ member.get_role_display }}</span></td>
+          <td>{% if member.user.is_active %}<span class="chip chip-live chip-dot">Active</span>{% else %}<span class="chip chip-muted chip-dot">Inactive</span>{% endif %}</td>
+          <td class="text-muted text-nowrap">{{ member.created_at|date:"j M Y" }}</td>
+          {% if can.manage_team %}
+          <td class="text-end text-nowrap">
+            {% if member.can_change_role %}
+            <button type="button" class="btn btn-sm btn-outline-ink" data-bs-toggle="modal" data-bs-target="#roleModal" data-member-modal="#roleModal" data-action="{% url 'organizations:change_role' member.id %}" data-name="{{ member.user.get_full_name|default:member.user.email }}" data-role="{{ member.role }}">Change Role</button>
+            {% endif %}
+            {% if member.can_remove %}
+            <button type="button" class="btn btn-sm btn-danger-soft" data-bs-toggle="modal" data-bs-target="#removeModal" data-member-modal="#removeModal" data-action="{% url 'organizations:remove_member' member.id %}" data-name="{{ member.user.get_full_name|default:member.user.email }}">Remove</button>
+            {% endif %}
+            {% if not member.can_change_role and not member.can_remove %}<span class="rp-faint small">&mdash;</span>{% endif %}
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="readonly-note mt-3">
+  <i class="bi bi-info-circle"></i>
+  <div>
+    <strong>Roles.</strong> Owners have full access. Admins manage day-to-day operations and can remove agents. Agents handle comments and leads.
+    {% if not can.manage_team %}You have view-only access to this list.{% endif %}
+  </div>
+</div>
+
+{% if can.manage_team %}
+<div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="post" action="">
+      {% csrf_token %}
+      <div class="modal-header"><h2 class="modal-title h5" id="roleModalLabel">Change role</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body">
+        <p>Choose a new role for <strong data-fill="name"></strong>.</p>
+        <label class="form-label" for="roleSelect">Role</label>
+        <select id="roleSelect" name="role" class="form-select">
+          {% for value, label in role_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-outline-ink" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save role</button></div>
+    </form>
+  </div>
+</div>
+<div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="post" action="">
+      {% csrf_token %}
+      <div class="modal-header"><h2 class="modal-title h5" id="removeModalLabel">Remove team member</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><p class="mb-0"><strong data-fill="name"></strong> will lose access to {{ current_organization.name }} straight away. Their account isn't deleted.</p></div>
+      <div class="modal-footer"><button type="button" class="btn btn-outline-ink" data-bs-dismiss="modal">Keep member</button><button type="submit" class="btn btn-danger">Remove member</button></div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

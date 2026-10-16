@@ -1,0 +1,12 @@
+{% extends "base/app.html" %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Analytics" soon=True description="See how comments turn into conversations and customers." %}
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">{% include "components/metric_card.html" with label="Comments handled" value=0 icon="bi-chat-square-text" tone="teal" %}</div>
+  <div class="col-sm-6 col-xl-3">{% include "components/metric_card.html" with label="Replies sent" value=0 icon="bi-reply" tone="sun" %}</div>
+  <div class="col-sm-6 col-xl-3">{% include "components/metric_card.html" with label="Leads generated" value=0 icon="bi-person-check" tone="ink" %}</div>
+  <div class="col-sm-6 col-xl-3">{% include "components/metric_card.html" with label="Conversion rate" value="0%" icon="bi-graph-up-arrow" tone="rose" %}</div>
+</div>
+{% include "components/empty_state.html" with icon="bi-bar-chart-line" title="No data to show yet" description="Analytics will become available once your social accounts are connected." %}
+{% endblock %}

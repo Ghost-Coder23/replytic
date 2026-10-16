@@ -1,0 +1,21 @@
+{% comment %}Renders one Django form field in the Replytic style. Usage: include with field=form.x{% endcomment %}
+{% if field.field.widget.input_type == "checkbox" %}
+<div class="form-check mb-3">
+  {{ field }}
+  <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+</div>
+{% else %}
+<div class="mb-3">
+  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {% if field.field.widget.input_type == "password" %}
+  <div class="input-group">
+    {{ field }}
+    <button class="btn btn-reveal" type="button" data-toggle-password="{{ field.id_for_label }}" aria-label="Show password"><i class="bi bi-eye"></i></button>
+  </div>
+  {% else %}
+  {{ field }}
+  {% endif %}
+  {% for error in field.errors %}<div class="field-error"><i class="bi bi-exclamation-circle" aria-hidden="true"></i><span>{{ error }}</span></div>{% endfor %}
+  {% if field.help_text %}<div class="field-help">{{ field.help_text|safe }}</div>{% endif %}
+</div>
+{% endif %}

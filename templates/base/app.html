@@ -1,0 +1,12 @@
+{% extends "base/base.html" %}
+{% comment %}Authenticated application shell: sidebar + top bar + content.{% endcomment %}
+{% block body %}
+{% include "components/sidebar.html" %}
+<div class="app-main">
+  {% include "components/navbar.html" %}
+  <main id="main" class="app-content mx-auto">
+    {% include "components/messages.html" %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

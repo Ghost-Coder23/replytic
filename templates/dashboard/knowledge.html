@@ -1,0 +1,12 @@
+{% extends "base/app.html" %}
+{% block title %}Knowledge{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Knowledge" soon=True description="Teach Replytic about your business so its answers are accurate." %}
+{% include "components/empty_state.html" with icon="bi-journal-text" title="Nothing here yet" description="Soon you'll be able to give Replytic the facts it needs to answer customers correctly. You stay in control of what it knows." %}
+<h2 class="h5 mt-4 mb-3">What you'll be able to add</h2>
+<div class="row g-3">
+  {% for icon, label in topics %}
+  <div class="col-6 col-md-4 col-xl-3"><div class="quick-action is-soon h-100" aria-disabled="true"><span class="qa-icon"><i class="bi {{ icon }}"></i></span><span class="fw-semibold">{{ label }}</span></div></div>
+  {% endfor %}
+</div>
+{% endblock %}

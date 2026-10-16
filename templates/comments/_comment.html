@@ -1,0 +1,62 @@
+{% with reply=comment.live_reply failed=comment.failed_reply %}
+<article class="rp-card comment-card" id="c-{{ comment.pk }}">
+  <div class="comment-head">
+    <span class="avatar">{{ comment.author_name|slice:":1"|default:"?"|upper }}</span>
+    <div class="who"><div class="fw-semibold">{{ comment.author_name|default:"Someone" }}</div><small>on {{ comment.page.name }} &middot; {{ comment.commented_at|timesince }} ago</small></div>
+    <span class="chip ms-auto {% if comment.status == 'REPLIED' %}chip-live{% elif comment.status == 'FAILED' %}chip-danger{% elif comment.status == 'IGNORED' %}chip-muted{% else %}chip-soon{% endif %}">{{ comment.get_status_display }}</span>
+  </div>
+
+  <div class="cbubble cbubble-in">{{ comment.message|default:"(No text)" }}</div>
+  {% if comment.decision_note %}<div class="decision-note"><i class="bi bi-lightning-charge"></i><span>{{ comment.decision_note }}</span></div>{% endif %}
+
+  {% if reply and reply.status == 'SENT' %}
+    <div class="cbubble cbubble-out">{{ reply.message }}</div>
+    <div class="reply-meta">{{ reply.get_source_display }}{% if reply.created_by %} &middot; {{ reply.created_by.first_name|default:reply.created_by.email }}{% endif %} &middot; {{ reply.sent_at|timesince }} ago</div>
+  {% elif reply and reply.status == 'DRAFT' %}
+    {% if can.reply_to_comments %}
+    <form method="post" action="{% url 'comments:reply' comment.pk %}" class="reply-form" data-loading-form>
+      {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <div class="cbubble-draft p-3 rounded-4">
+        <label class="form-label small mb-1" for="draft-{{ comment.pk }}"><i class="bi bi-magic me-1"></i>Suggested reply{% if reply.rule %} &middot; rule “{{ reply.rule.name }}”{% endif %}. Edit it if you like.</label>
+        <textarea id="draft-{{ comment.pk }}" name="message" class="form-control" rows="3" maxlength="{{ max_reply_length }}" required>{{ reply.message }}</textarea>
+        <div class="comment-actions mt-2">
+          <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-send me-1"></i>Send reply</button>
+          <button class="btn btn-outline-ink btn-sm" type="submit" formaction="{% url 'comments:discard' comment.pk %}" formnovalidate>Discard</button>
+        </div>
+      </div>
+    </form>
+    {% else %}
+    <div class="cbubble cbubble-draft">{{ reply.message }}</div>
+    {% endif %}
+  {% elif failed %}
+    <div class="error-strip"><i class="bi bi-exclamation-octagon-fill"></i><span>{{ failed.error|default:"The reply couldn't be sent." }}</span></div>
+  {% endif %}
+
+  {% if can.reply_to_comments and not comment.is_from_page %}
+  <div class="comment-actions">
+    {% if comment.status != 'REPLIED' and comment.status != 'IGNORED' and not reply %}
+      {% if failed %}
+      <form method="post" action="{% url 'comments:retry' comment.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn btn-ink btn-sm" type="submit"><i class="bi bi-arrow-repeat me-1"></i>Retry</button></form>
+      {% endif %}
+      <button class="btn btn-outline-ink btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#reply-{{ comment.pk }}"><i class="bi bi-reply me-1"></i>Write a reply</button>
+    {% endif %}
+    {% if comment.status == 'IGNORED' %}
+      <form method="post" action="{% url 'comments:reopen' comment.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn btn-outline-ink btn-sm" type="submit">Move back to inbox</button></form>
+    {% elif comment.status != 'REPLIED' %}
+      <form method="post" action="{% url 'comments:ignore' comment.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn btn-sm btn-link text-muted" type="submit">Ignore</button></form>
+    {% endif %}
+  </div>
+  {% if comment.status != 'REPLIED' and comment.status != 'IGNORED' and not reply %}
+  <div class="collapse" id="reply-{{ comment.pk }}">
+    <form method="post" action="{% url 'comments:reply' comment.pk %}" class="reply-form" data-loading-form>
+      {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <label class="visually-hidden" for="msg-{{ comment.pk }}">Your reply</label>
+      <textarea id="msg-{{ comment.pk }}" name="message" class="form-control mb-2" rows="3" maxlength="{{ max_reply_length }}" placeholder="Write a public reply to {{ comment.author_name|default:'this customer' }}…" required></textarea>
+      <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-send me-1"></i>Post reply</button>
+      <span class="text-muted small ms-2">This is public on your Facebook Page.</span>
+    </form>
+  </div>
+  {% endif %}
+  {% endif %}
+</article>
+{% endwith %}

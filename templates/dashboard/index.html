@@ -1,0 +1,72 @@
+{% extends "base/app.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="greeting">
+  <h1>{{ greeting }}, {{ first_name }}</h1>
+  <p>Here's where things stand at <strong>{{ current_organization.name }}</strong>.</p>
+</section>
+
+<section class="row g-3 mb-4" aria-label="Key numbers">
+  {% for m in metrics %}
+  <div class="col-sm-6 col-xl-3">{% include "components/metric_card.html" with label=m.label value=m.value icon=m.icon tone=m.tone note=m.note %}</div>
+  {% endfor %}
+</section>
+
+<div class="row g-4">
+  <div class="col-lg-7 col-xl-8">
+    <section class="rp-card rp-card-pad" aria-labelledby="gs-title">
+      <div class="d-flex justify-content-between align-items-start gap-3 mb-3 flex-wrap">
+        <div>
+          <h2 class="rp-card-title" id="gs-title">Getting started</h2>
+          <p class="text-muted mb-0 small">{{ checklist.completed }} of {{ checklist.total }} steps done. Steps marked Coming soon unlock as new features launch.</p>
+        </div>
+        <span class="chip chip-live">{{ checklist.percent }}%</span>
+      </div>
+      <div class="progress-rp mb-3" role="progressbar" aria-valuenow="{{ checklist.percent }}" aria-valuemin="0" aria-valuemax="100" aria-label="Setup progress"><span style="width: {{ checklist.percent }}%"></span></div>
+      <ul class="checklist">
+        {% for item in checklist.items %}
+        <li class="item-{{ item.state }}">
+          <span class="check-mark check-{{ item.state }}" aria-hidden="true">{% if item.state == 'done' %}<i class="bi bi-check-lg"></i>{% elif item.state == 'soon' %}<i class="bi bi-hourglass-split" style="font-size:.7rem;color:#8a5b00"></i>{% endif %}</span>
+          <div class="flex-grow-1">
+            <span class="item-label">{{ item.label }}</span>
+            {% if item.hint and item.state != 'done' %}<span class="item-hint">{{ item.hint }}</span>{% endif %}
+          </div>
+          {% if item.state == 'soon' %}<span class="chip chip-soon">Coming soon</span>
+          {% elif item.state == 'todo' and item.url_name and item.requires == 'manage_integrations' and can.manage_integrations or item.state == 'todo' and item.url_name and item.requires == 'manage_automations' and can.manage_automations or item.state == 'todo' and item.url_name and not item.requires %}<a class="btn btn-sm btn-outline-ink" href="{% url item.url_name %}">Do this</a>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <div class="col-lg-5 col-xl-4 d-grid gap-4 align-content-start">
+    <section class="rp-card rp-card-pad" aria-labelledby="qa-title">
+      <h2 class="rp-card-title mb-3" id="qa-title">Quick actions</h2>
+      <div class="d-grid gap-2">
+        {% if can.manage_business_profile %}
+        <a class="quick-action" href="{% url 'organizations:settings' %}?tab=business"><span class="qa-icon"><i class="bi bi-shop"></i></span><span class="fw-semibold">Edit business profile</span></a>
+        {% endif %}
+        <a class="quick-action" href="{% url 'organizations:team' %}"><span class="qa-icon"><i class="bi bi-people"></i></span><span class="fw-semibold">View your team</span></a>
+        {% if can.manage_integrations %}
+        <a class="quick-action" href="{% url 'facebook:index' %}"><span class="qa-icon"><i class="bi bi-facebook"></i></span><span class="fw-semibold">Connect Facebook</span></a>
+        {% endif %}
+        {% if can.manage_automations %}
+        <a class="quick-action" href="{% url 'automations:create' %}"><span class="qa-icon"><i class="bi bi-lightning-charge"></i></span><span class="fw-semibold">Create automation</span></a>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="rp-card rp-card-pad" aria-labelledby="ra-title">
+      <h2 class="rp-card-title mb-3" id="ra-title">Recent activity</h2>
+      <ul class="activity">
+        {% for event in activity %}
+        <li>
+          <span class="a-icon"><i class="bi {{ event.icon }}"></i></span>
+          <div><div>{{ event.text }}</div><span class="a-time">{{ event.at|timesince }} ago</span></div>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+</div>
+{% endblock %}

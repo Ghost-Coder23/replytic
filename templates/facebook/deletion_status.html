@@ -1,0 +1,17 @@
+{% extends "base/auth.html" %}
+{% block title %}Data deletion status{% endblock %}
+{% block content %}
+{% if record %}
+<h1>Your data was deleted</h1>
+<p class="sub">Replytic removed the Facebook connection and stored access tokens linked to your request.</p>
+<dl class="status-list">
+  <div class="status-row"><dt>Confirmation code</dt><dd><code>{{ record.confirmation_code }}</code></dd></div>
+  <div class="status-row"><dt>Completed</dt><dd>{{ record.completed_at|date:"j M Y, H:i" }}</dd></div>
+  <div class="status-row"><dt>Connections removed</dt><dd>{{ record.connections_removed }}</dd></div>
+</dl>
+<p class="text-muted small mt-3">Comments left publicly on a business's Facebook Page belong to that business and its Page, not to Replytic's Facebook connection.</p>
+{% else %}
+<h1>Request not found</h1>
+<p class="sub">We couldn't find a deletion request with that confirmation code. Check the link Facebook gave you.</p>
+{% endif %}
+{% endblock %}

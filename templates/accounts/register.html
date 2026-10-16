@@ -1,0 +1,23 @@
+{% extends "base/auth.html" %}
+{% block title %}Create your account{% endblock %}
+{% block content %}
+<h1>Create your account</h1>
+<p class="sub">Set up your business workspace in under a minute. You'll be its owner.</p>
+
+<form method="post" novalidate data-loading-form>
+  {% csrf_token %}
+  {% if form.non_field_errors %}
+  <div class="flash flash-danger mb-3"><i class="bi bi-exclamation-octagon-fill"></i><div>{{ form.non_field_errors.0 }}</div></div>
+  {% endif %}
+  <div class="row gx-3">
+    <div class="col-sm-6">{% include "components/form_field.html" with field=form.first_name %}</div>
+    <div class="col-sm-6">{% include "components/form_field.html" with field=form.last_name %}</div>
+  </div>
+  {% include "components/form_field.html" with field=form.email %}
+  {% include "components/form_field.html" with field=form.business_name %}
+  {% include "components/form_field.html" with field=form.password1 %}
+  {% include "components/form_field.html" with field=form.password2 %}
+  <button type="submit" class="btn btn-primary btn-lg w-100 mt-2">Create account</button>
+</form>
+<p class="auth-switch">Already have an account? <a href="{% url 'accounts:login' %}">Sign in</a></p>
+{% endblock %}

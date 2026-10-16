@@ -1,0 +1,38 @@
+{% extends "base/app.html" %}
+{% block title %}Comments{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div>
+    <h1>Comments</h1>
+    <p class="lede">Customer comments from your Facebook Pages, with replies ready for you to approve.</p>
+  </div>
+  <form method="post" action="{% url 'comments:check' %}">{% csrf_token %}<button class="btn btn-outline-ink" type="submit"><i class="bi bi-arrow-repeat me-2"></i>Check for new comments</button></form>
+</header>
+
+{% if total_comments == 0 %}
+  {% if has_connected_page %}
+    {% include "components/empty_state.html" with icon="bi-chat-square-text" title="No comments yet" description="Replytic is watching your connected Page. New comments will appear here as customers post them." features="Comments arrive within moments of being posted|Suggested replies appear when a rule matches|You approve replies until you turn on automatic replies" %}
+  {% else %}
+    {% url 'facebook:index' as facebook_url %}
+    {% include "components/empty_state.html" with icon="bi-chat-square-text" title="No comments yet" description="Connect your Facebook Page to start receiving customer comments." features="Monitor comments on your Page posts|Suggest or send answers to common questions|Flag buyers for your team" button_label="Connect Facebook" button_url=facebook_url button_icon="bi-facebook" %}
+  {% endif %}
+{% else %}
+  <nav class="tabs-rp" aria-label="Comment filters">
+    {% for tab in tabs %}<a href="?filter={{ tab.key }}" class="{% if tab.active %}active{% endif %}"{% if tab.active %} aria-current="page"{% endif %}>{{ tab.label }}<span class="count">{{ tab.count }}</span></a>{% endfor %}
+  </nav>
+  {% if comments %}
+  <div class="d-grid gap-3">
+    {% for comment in comments %}{% include "comments/_comment.html" %}{% endfor %}
+  </div>
+  {% if page_obj.has_other_pages %}
+  <nav class="d-flex justify-content-between align-items-center mt-4" aria-label="Pagination">
+    {% if page_obj.has_previous %}<a class="btn btn-outline-ink" href="?filter={{ active_filter }}&page={{ page_obj.previous_page_number }}"><i class="bi bi-arrow-left me-1"></i>Newer</a>{% else %}<span></span>{% endif %}
+    <span class="text-muted small">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a class="btn btn-outline-ink" href="?filter={{ active_filter }}&page={{ page_obj.next_page_number }}">Older<i class="bi bi-arrow-right ms-1"></i></a>{% else %}<span></span>{% endif %}
+  </nav>
+  {% endif %}
+  {% else %}
+  <div class="rp-card rp-card-pad text-center"><i class="bi bi-check2-circle" style="font-size:2rem;color:var(--rp-teal)"></i><h2 class="h5 mt-2">All clear</h2><p class="text-muted mx-auto mb-0">Nothing in this view right now.</p></div>
+  {% endif %}
+{% endif %}
+{% endblock %}

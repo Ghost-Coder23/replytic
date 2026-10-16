@@ -1,0 +1,106 @@
+{% extends "base/base.html" %}
+{% block title %}Turn social comments into customers{% endblock %}
+{% block body %}
+<div class="container" style="max-width:1180px">
+  <nav class="land-nav" aria-label="Primary">
+    {% include "components/logo.html" %}
+    <div class="d-flex align-items-center">
+      <span class="links d-none d-md-inline"><a href="#features">Features</a><a href="#how">How it works</a></span>
+      {% if user.is_authenticated %}
+        <a class="btn btn-primary" href="{% url 'dashboard:index' %}">Open dashboard</a>
+      {% else %}
+        <a class="btn btn-outline-ink me-2" href="{% url 'accounts:login' %}">Login</a>
+        <a class="btn btn-primary" href="{% url 'accounts:register' %}">Get Started</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <main id="main">
+    <section class="land-hero">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <h1>Turn social comments into customers.</h1>
+          <p class="sub">Replytic helps businesses respond to customer questions, identify potential buyers and turn social conversations into leads.</p>
+          <div class="d-flex gap-2 flex-wrap">
+            {% if user.is_authenticated %}
+              <a class="btn btn-primary btn-lg" href="{% url 'dashboard:index' %}">Open dashboard</a>
+            {% else %}
+              <a class="btn btn-primary btn-lg" href="{% url 'accounts:register' %}">Get Started</a>
+              <a class="btn btn-outline-ink btn-lg" href="{% url 'accounts:login' %}">Login</a>
+            {% endif %}
+          </div>
+          <div class="land-note"><i class="bi bi-info-circle"></i><span>Early access: accounts, workspaces, Facebook comments and keyword-based replies work today. AI understanding and WhatsApp handover are still being built.</span></div>
+        </div>
+        <div class="col-lg-6">
+          <div class="preview-window" role="img" aria-label="Illustration of a customer comment, an automatic reply and a new lead">
+            <div class="preview-bar"><span class="dots"><span></span><span></span><span></span></span><span class="small text-muted ms-2">Facebook comments</span><span class="chip chip-soon ms-auto">Preview</span></div>
+            <div class="preview-body reveal-seq">
+              <div class="preview-post"><span class="avatar avatar-sm avatar-org">SF</span><span>Comments on your latest furniture post</span></div>
+              <div class="preview-msg in"><span class="avatar avatar-sm">T</span><div><span class="who">Tendai M.</span><div class="bubble-text">How much is the 3-seater sofa? Do you deliver?</div></div></div>
+              <div class="preview-msg out"><span class="avatar avatar-sm avatar-org"><i class="bi bi-lightning-charge-fill"></i></span><div><span class="who">Replytic reply</span><div class="bubble-text">Hi Tendai, thanks for asking! Message us on WhatsApp and we'll confirm the price and delivery for you.</div></div></div>
+              <div class="preview-lead"><i class="bi bi-person-check-fill"></i>Potential lead: asked about price and delivery</div>
+            </div>
+            <p class="preview-caption">Illustration of the planned experience. Not live data, and not connected to Facebook yet.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="land-section" id="features">
+      <h2>Everything between a comment and a sale</h2>
+      <p class="section-sub">Built for businesses that get their customers' questions on social media.</p>
+      <div class="feature-rows">
+        {% for icon, title, text in features %}
+        <div class="feature-row">
+          <span class="f-icon"><i class="bi {{ icon }}"></i></span>
+          <h3>{{ title }}</h3>
+          <p>{{ text }}</p>
+          <span class="chip chip-soon">Coming soon</span>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="land-section" id="how">
+      <h2>How Replytic will work</h2>
+      <p class="section-sub">A simple path from a public question to a private conversation.</p>
+      <div class="flow">
+        <div class="flow-step"><span class="n">1</span><h3>A customer comments</h3><p>Replytic watches your connected Facebook Page for new comments.</p></div>
+        <div class="flow-step"><span class="n">2</span><h3>Replytic replies</h3><p>Common questions about price, stock, location and delivery get a quick answer.</p></div>
+        <div class="flow-step"><span class="n">3</span><h3>Buyers become leads</h3><p>People ready to buy are captured so nobody falls through the cracks.</p></div>
+        <div class="flow-step"><span class="n">4</span><h3>Your team takes over</h3><p>Serious enquiries move to WhatsApp, where a person closes the sale.</p></div>
+      </div>
+    </section>
+
+    <section class="land-section">
+      <div class="live-panel">
+        <div>
+          <span class="chip chip-live chip-dot mb-3">Live today</span>
+          <h2 style="max-width:16ch">A solid foundation for your team</h2>
+          <p class="text-muted mb-0">The workspace is ready now, so when social features arrive your business is already set up.</p>
+        </div>
+        <ul class="live-list">
+          <li><i class="bi bi-check-circle-fill"></i><span><strong>Business workspaces.</strong> Every business gets its own private space.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i><span><strong>Owner, admin and agent roles.</strong> Give teammates the right level of access.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i><span><strong>Complete data separation.</strong> One business can never see another's information.</span></li>
+          <li><i class="bi bi-check-circle-fill"></i><span><strong>Multiple businesses, one login.</strong> Switch between the businesses you manage.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="land-section pt-0">
+      <div class="land-cta">
+        <h2>Ready to stop missing customers?</h2>
+        <p class="mb-4" style="color:#a9c5c1">Create your workspace now and be first in line as new features arrive.</p>
+        {% if user.is_authenticated %}
+          <a class="btn btn-light-on-ink btn-lg" href="{% url 'dashboard:index' %}">Open dashboard</a>
+        {% else %}
+          <a class="btn btn-light-on-ink btn-lg me-2" href="{% url 'accounts:register' %}">Get Started</a>
+          <a class="btn btn-ghost-on-ink btn-lg" href="{% url 'accounts:login' %}">Login</a>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+  {% include "components/footer.html" %}
+</div>
+{% endblock %}

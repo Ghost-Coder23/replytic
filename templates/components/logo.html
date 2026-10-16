@@ -1,0 +1,10 @@
+<a class="rp-logo{% if dark %} on-dark{% endif %}" href="{% if href %}{{ href }}{% else %}{% url 'core:home' %}{% endif %}" aria-label="Replytic home">
+  <svg width="{{ size|default:34 }}" height="{{ size|default:34 }}" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect width="34" height="34" rx="10" fill="{% if dark %}#34c3b0{% else %}#0e8074{% endif %}"/>
+    <rect x="8" y="8" width="18" height="12.5" rx="4" fill="{% if dark %}#0f2a2d{% else %}#fff{% endif %}"/>
+    <path d="M12 20.4v5.1l5.4-5.1z" fill="{% if dark %}#0f2a2d{% else %}#fff{% endif %}"/>
+    <circle cx="21.2" cy="14.2" r="2.3" fill="#f4b740"/>
+    <rect x="11.5" y="13" width="6" height="2.4" rx="1.2" fill="{% if dark %}#34c3b0{% else %}#0e8074{% endif %}" opacity=".55"/>
+  </svg>
+  <span class="rp-logo-word">Replytic</span>
+</a>

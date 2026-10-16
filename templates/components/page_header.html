@@ -1,0 +1,7 @@
+<header class="page-header">
+  <div>
+    <h1>{{ title }}{% if soon %} <span class="chip chip-soon">Coming soon</span>{% endif %}</h1>
+    {% if description %}<p class="lede">{{ description }}</p>{% endif %}
+  </div>
+  {% if actions %}<div class="d-flex gap-2 flex-wrap">{{ actions }}</div>{% endif %}
+</header>

@@ -1,0 +1,32 @@
+{% extends "base/app.html" %}
+{% block title %}Billing{% endblock %}
+{% block content %}
+{% include "components/page_header.html" with title="Billing" description="Your plan and usage for this business." %}
+<div class="row g-4">
+  <div class="col-lg-5">
+    <section class="rp-card rp-card-pad h-100">
+      <h2 class="rp-card-title mb-3">Current plan</h2>
+      <dl class="status-list mb-0">
+        <div class="status-row"><dt>Plan</dt><dd>Free / Development</dd></div>
+        <div class="status-row"><dt>Status</dt><dd><span class="chip chip-live chip-dot">Active</span></dd></div>
+        <div class="status-row"><dt>Usage</dt><dd class="fw-normal text-muted">No usage yet</dd></div>
+        <div class="status-row"><dt>Payment method</dt><dd class="fw-normal text-muted">None needed</dd></div>
+      </dl>
+    </section>
+  </div>
+  <div class="col-lg-7">
+    <section class="rp-card rp-card-pad h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
+        <h2 class="rp-card-title">Plans on the way</h2>
+        <span class="chip chip-soon">Billing integration coming soon</span>
+      </div>
+      <div class="row g-3">
+        {% for name, blurb in plans %}
+        <div class="col-md-4"><div class="plan-tile"><h3>{{ name }}</h3><p class="text-muted small mb-0">{{ blurb }}</p></div></div>
+        {% endfor %}
+      </div>
+      <p class="text-muted small mt-3 mb-0">Pricing hasn't been announced. You won't be charged for anything today.</p>
+    </section>
+  </div>
+</div>
+{% endblock %}

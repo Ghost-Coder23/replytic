@@ -1,0 +1,26 @@
+{% extends "base/base.html" %}
+{% comment %}Split-screen layout for sign in / sign up / password pages.{% endcomment %}
+{% block body %}
+<div class="auth-shell">
+  <aside class="auth-panel">
+    {% include "components/logo.html" with dark=True %}
+    <div>
+      <h2>Turn social comments into customers.</h2>
+      <p>One place for every customer question, so no buyer slips past unanswered.</p>
+      <ul class="points">
+        <li><i class="bi bi-building-check"></i>A private workspace for your business</li>
+        <li><i class="bi bi-people"></i>Owner, admin and agent roles for your team</li>
+        <li><i class="bi bi-shield-check"></i>Your data stays separate from every other business</li>
+      </ul>
+    </div>
+    {% include "components/thread.html" with dark=True %}
+  </aside>
+  <section class="auth-form-side">
+    <main id="main" class="auth-card">
+      <span class="auth-mobile-logo">{% include "components/logo.html" %}</span>
+      {% include "components/messages.html" %}
+      {% block content %}{% endblock %}
+    </main>
+  </section>
+</div>
+{% endblock %}
